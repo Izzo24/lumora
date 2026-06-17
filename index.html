@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumora — 豪華智能家居系統</title>
+<style>
+  :root {
+    --bg: #07090f;
+    --bg2: #0d1220;
+    --bg3: #111927;
+    --gold: #c9a84c;
+    --gold2: #e8c97e;
+    --gold-dim: rgba(201,168,76,0.15);
+    --cyan: #00cfff;
+    --cyan-dim: rgba(0,207,255,0.12);
+    --orange: #ff7b35;
+    --text: #e8edf5;
+    --muted: #8892a4;
+    --border: #1e2a3a;
+    --card: #0f1824;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; line-height:1.6; overflow-x:hidden; }
+
+  /* HEADER */
+  header {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(7,9,15,0.85); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    padding:0 5%;
+  }
+  .header-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:70px; }
+  .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .logo-icon { width:38px; height:38px; }
+  .logo-text { font-size:1.4rem; font-weight:700; letter-spacing:0.05em; background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  nav { display:flex; align-items:center; gap:2rem; }
+  nav a { color:var(--muted); text-decoration:none; font-size:0.9rem; transition:color 0.2s; }
+  nav a:hover { color:var(--gold); }
+  .btn-header { background:linear-gradient(135deg,var(--gold),#a8751e); color:#07090f; padding:0.5rem 1.4rem; border-radius:6px; font-weight:600; font-size:0.875rem; text-decoration:none; transition:opacity 0.2s; }
+  .btn-header:hover { opacity:0.85; }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; align-items:center;
+    position:relative; overflow:hidden;
+    padding: 100px 5% 60px;
+  }
+  .hero-bg {
+    position:absolute; inset:0; z-index:0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 60% at 30% 80%, rgba(0,207,255,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 100% 100% at 50% 0%, rgba(13,18,32,0.9) 0%, var(--bg) 100%);
+  }
+  .grid-lines {
+    position:absolute; inset:0; z-index:0; opacity:0.06;
+    background-image:
+      linear-gradient(var(--cyan) 1px, transparent 1px),
+      linear-gradient(90deg, var(--cyan) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position:relative; z-index:1; max-width:1200px; margin:0 auto; width:100%; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+  .hero-badge { display:inline-flex; align-items:center; gap:8px; background:var(--gold-dim); border:1px solid rgba(201,168,76,0.3); border-radius:100px; padding:6px 16px; font-size:0.8rem; color:var(--gold2); margin-bottom:1.5rem; }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  .hero h1 { font-size:3.5rem; font-weight:800; line-height:1.15; letter-spacing:-0.02em; margin-bottom:1.5rem; }
+  .hero h1 span { background:linear-gradient(135deg,var(--gold),var(--gold2),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero p { font-size:1.1rem; color:var(--muted); margin-bottom:2rem; max-width:480px; }
+  .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; }
+  .btn-primary { background:linear-gradient(135deg,var(--gold),#a8751e); color:#07090f; padding:0.85rem 2rem; border-radius:8px; font-weight:700; font-size:1rem; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:transform 0.2s,box-shadow 0.2s; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(201,168,76,0.35); }
+  .btn-outline { background:transparent; color:var(--text); padding:0.85rem 2rem; border-radius:8px; font-weight:600; font-size:1rem; text-decoration:none; border:1px solid var(--border); display:inline-flex; align-items:center; gap:8px; transition:border-color 0.2s,color 0.2s; }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .hero-visual { position:relative; }
+  .home-viz { width:100%; max-width:520px; margin:0 auto; }
+
+  /* HOME DASHBOARD SVG */
+  .dashboard-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; }
+  .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .dash-title { font-size:0.9rem; color:var(--muted); }
+  .dash-status { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#4ade80; }
+  .status-dot { width:8px; height:8px; border-radius:50%; background:#4ade80; animation:pulse 2s infinite; }
+  .rooms-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .room-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .room-icon { font-size:1.5rem; margin-bottom:8px; }
+  .room-name { font-size:0.75rem; color:var(--muted); margin-bottom:4px; }
+  .room-temp { font-size:1.2rem; font-weight:700; color:var(--gold2); }
+  .room-active { border-color:rgba(201,168,76,0.4); background:rgba(201,168,76,0.07); }
+  .controls-row { display:flex; gap:10px; margin-bottom:20px; }
+  .ctrl-btn { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .ctrl-btn.on { background:var(--gold-dim); border-color:rgba(201,168,76,0.5); }
+  .ctrl-label { font-size:0.7rem; color:var(--muted); margin-top:4px; }
+  .ctrl-val { font-size:0.8rem; font-weight:600; color:var(--text); }
+  .energy-bar-wrap { background:var(--bg2); border-radius:12px; padding:16px; }
+  .energy-label { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:10px; }
+  .energy-bars { display:flex; gap:6px; align-items:flex-end; height:60px; }
+  .e-bar { flex:1; border-radius:4px 4px 0 0; }
+
+  /* STATS */
+  .stats { padding:5rem 5%; background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .stats-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; text-align:center; }
+  .stat-num { font-size:2.8rem; font-weight:800; background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.4rem; }
+  .stat-label { color:var(--muted); font-size:0.9rem; }
+
+  /* FEATURES */
+  .features { padding:7rem 5%; }
+  .section-label { text-align:center; color:var(--gold); font-size:0.8rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:1rem; }
+  .section-title { text-align:center; font-size:2.6rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:1rem; }
+  .section-sub { text-align:center; color:var(--muted); max-width:560px; margin:0 auto 4rem; }
+  .features-grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .feat-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; transition:border-color 0.3s,transform 0.3s; }
+  .feat-card:hover { border-color:rgba(201,168,76,0.5); transform:translateY(-4px); }
+  .feat-icon { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:1.2rem; font-size:1.5rem; }
+  .feat-title { font-size:1.05rem; font-weight:700; margin-bottom:0.6rem; }
+  .feat-desc { color:var(--muted); font-size:0.9rem; line-height:1.6; }
+
+  /* HOW IT WORKS */
+  .how { padding:7rem 5%; background:var(--bg2); }
+  .steps { max-width:1000px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; position:relative; }
+  .steps::before { content:''; position:absolute; top:40px; left:calc(16.67% + 20px); right:calc(16.67% + 20px); height:1px; background:linear-gradient(90deg,var(--gold),var(--cyan)); opacity:0.4; }
+  .step { text-align:center; }
+  .step-num { width:72px; height:72px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:800; color:var(--gold); margin:0 auto 1.2rem; background:var(--bg); position:relative; z-index:1; }
+  .step-title { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
+  .step-desc { color:var(--muted); font-size:0.9rem; }
+
+  /* DEVICES */
+  .devices { padding:7rem 5%; }
+  .devices-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+  .device-viz { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:2rem; }
+  .device-list { display:flex; flex-direction:column; gap:12px; }
+  .device-item { display:flex; align-items:center; gap:16px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 16px; transition:border-color 0.2s; }
+  .device-item:hover { border-color:rgba(201,168,76,0.4); }
+  .device-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .device-info { flex:1; }
+  .device-name { font-size:0.9rem; font-weight:600; margin-bottom:2px; }
+  .device-loc { font-size:0.75rem; color:var(--muted); }
+  .device-toggle { width:44px; height:24px; border-radius:12px; position:relative; cursor:pointer; transition:background 0.2s; }
+  .toggle-on { background:var(--gold); }
+  .toggle-off { background:var(--bg); border:1px solid var(--border); }
+  .toggle-knob { width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:3px; transition:left 0.2s; }
+  .toggle-on .toggle-knob { left:23px; }
+  .toggle-off .toggle-knob { left:3px; }
+  .devices-text h2 { font-size:2.4rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:1rem; }
+  .devices-text p { color:var(--muted); margin-bottom:1.5rem; }
+  .feature-list { list-style:none; display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2rem; }
+  .feature-list li { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:0.9rem; }
+  .check-icon { color:var(--gold); font-size:1rem; }
+
+  /* TESTIMONIALS */
+  .testimonials { padding:7rem 5%; background:var(--bg2); }
+  .testi-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .testi-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; }
+  .stars { color:var(--gold); font-size:1rem; margin-bottom:1rem; letter-spacing:2px; }
+  .testi-text { color:var(--muted); font-size:0.9rem; line-height:1.7; margin-bottom:1.5rem; }
+  .testi-author { display:flex; align-items:center; gap:12px; }
+  .avatar { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex-shrink:0; }
+  .author-name { font-weight:600; font-size:0.9rem; }
+  .author-role { font-size:0.75rem; color:var(--muted); }
+
+  /* PRICING */
+  .pricing { padding:7rem 5%; }
+  .pricing-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .price-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; position:relative; }
+  .price-card.popular { border-color:var(--gold); }
+  .popular-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--gold),#a8751e); color:#07090f; font-size:0.75rem; font-weight:700; padding:4px 16px; border-radius:100px; white-space:nowrap; }
+  .price-tier { font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.75rem; }
+  .price-amt { font-size:3rem; font-weight:800; color:var(--gold2); }
+  .price-amt span { font-size:1rem; font-weight:400; color:var(--muted); }
+  .price-desc { color:var(--muted); font-size:0.85rem; margin:0.75rem 0 1.5rem; }
+  .price-features { list-style:none; display:flex; flex-direction:column; gap:0.6rem; margin-bottom:2rem; }
+  .price-features li { display:flex; align-items:center; gap:10px; font-size:0.875rem; color:var(--muted); }
+  .price-features li.has { color:var(--text); }
+  .pi { font-size:0.875rem; }
+  .btn-price { display:block; text-align:center; padding:0.85rem; border-radius:10px; font-weight:600; font-size:0.95rem; text-decoration:none; transition:all 0.2s; }
+  .btn-price-outline { border:1px solid var(--border); color:var(--text); }
+  .btn-price-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-price-gold { background:linear-gradient(135deg,var(--gold),#a8751e); color:#07090f; }
+  .btn-price-gold:hover { opacity:0.85; }
+
+  /* INTEGRATIONS */
+  .integrations { padding:5rem 5%; background:var(--bg2); border-top:1px solid var(--border); }
+  .int-title { text-align:center; color:var(--muted); font-size:0.85rem; margin-bottom:2rem; }
+  .int-logos { max-width:900px; margin:0 auto; display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; align-items:center; }
+  .int-logo { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 24px; font-size:0.85rem; color:var(--muted); font-weight:500; }
+
+  /* CTA */
+  .cta { padding:7rem 5%; position:relative; overflow:hidden; }
+  .cta-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 50%, rgba(201,168,76,0.1) 0%, transparent 70%); }
+  .cta-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; text-align:center; }
+  .cta h2 { font-size:2.8rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:1rem; }
+  .cta h2 span { background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .cta p { color:var(--muted); margin-bottom:2rem; }
+  .cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* FOOTER */
+  footer { background:var(--bg2); border-top:1px solid var(--border); padding:4rem 5% 2rem; }
+  .footer-inner { max-width:1200px; margin:0 auto; }
+  .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; margin-bottom:3rem; }
+  .footer-brand .logo { margin-bottom:1rem; }
+  .footer-desc { color:var(--muted); font-size:0.875rem; max-width:280px; line-height:1.7; }
+  .footer-col h4 { font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1.2rem; color:var(--gold2); }
+  .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:0.6rem; }
+  .footer-col ul li a { color:var(--muted); text-decoration:none; font-size:0.875rem; transition:color 0.2s; }
+  .footer-col ul li a:hover { color:var(--text); }
+  .footer-bottom { border-top:1px solid var(--border); padding-top:2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+  .footer-copy { color:var(--muted); font-size:0.8rem; }
+  .footer-credit { color:var(--muted); font-size:0.8rem; }
+  .footer-credit a { color:var(--gold); text-decoration:none; }
+  .footer-credit a:hover { text-decoration:underline; }
+
+  /* ANIMATIONS */
+  .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.6s ease,transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:none; }
+
+  @media(max-width:900px){
+    .hero-content { grid-template-columns:1fr; }
+    .hero h1 { font-size:2.4rem; }
+    .hero-visual { display:none; }
+    .stats-inner { grid-template-columns:repeat(2,1fr); }
+    .features-grid { grid-template-columns:1fr 1fr; }
+    .steps { grid-template-columns:1fr; }
+    .steps::before { display:none; }
+    .devices-inner { grid-template-columns:1fr; }
+    .testi-grid { grid-template-columns:1fr; }
+    .pricing-grid { grid-template-columns:1fr; }
+    .footer-top { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="38" height="38" rx="10" fill="url(#lg1)"/>
+        <path d="M19 8L10 14V24L19 30L28 24V14L19 8Z" stroke="#07090f" stroke-width="1.5" fill="none"/>
+        <circle cx="19" cy="19" r="4" fill="#07090f"/>
+        <path d="M19 8V15M19 23V30M10 14L16 18M22 20L28 24M28 14L22 18M16 20L10 24" stroke="#07090f" stroke-width="1.2"/>
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#c9a84c"/>
+            <stop offset="100%" stop-color="#e8c97e"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-text">Lumora</span>
+    </a>
+    <nav>
+      <a href="#features">功能</a>
+      <a href="#devices">裝置</a>
+      <a href="#pricing">方案</a>
+      <a href="#contact">聯絡</a>
+      <a href="#" class="btn-header">免費體驗</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        全新 AI 家居智控系統已上線
+      </div>
+      <h1>讓您的家<br>智慧<span>璀璨煥發</span></h1>
+      <p>Lumora 將先進的 AI 技術與精緻的設計融為一體，打造出真正能理解您生活方式的智能家居體驗。</p>
+      <div class="hero-btns">
+        <a href="#pricing" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 8L8 14M2 8H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          立即開始
+        </a>
+        <a href="#features" class="btn-outline">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M6 8L10 8M8 6L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          探索功能
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="home-viz">
+        <div class="dashboard-card">
+          <div class="dash-header">
+            <div>
+              <div style="font-size:1rem;font-weight:700;margin-bottom:2px;">Lumora 家居中心</div>
+              <div class="dash-title">今日 · 台北市 · 26°C</div>
+            </div>
+            <div class="dash-status"><span class="status-dot"></span>系統正常運行</div>
+          </div>
+          <div class="rooms-grid">
+            <div class="room-card room-active">
+              <div class="room-icon">🛋️</div>
+              <div class="room-name">客廳</div>
+              <div class="room-temp">24°C</div>
+              <div style="font-size:0.7rem;color:#c9a84c;margin-top:4px;">● 燈光已銋啟</div>
+            </div>
+            <div class="room-card">
+              <div class="room-icon">🛏️</div>
+              <div class="room-name">主臥</div>
+              <div class="room-temp">22°C</div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">○ 待機模式</div>
+            </div>
+            <div class="room-card room-active">
+              <div class="room-icon">🍳</div>
+              <div class="room-name">廚房</div>
+              <div class="room-temp">25°C</div>
+              <div style="font-size:0.7rem;color:#c9a84c;margin-top:4px;">● 排風運行中</div>
+            </div>
+            <div class="room-card">
+              <div class="room-icon">🛁</div>
+              <div class="room-name">浴室</div>
+              <div class="room-temp">28°C</div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">○ 待機模式</div>
+            </div>
+          </div>
+          <div class="controls-row">
+            <div class="ctrl-btn on">
+              <div style="font-size:1.1rem;">💡</div>
+              <div class="ctrl-val">開啟</div>
+              <div class="ctrl-label">照明</div>
+            </div>
+            <div class="ctrl-btn on">
+              <div style="font-size:1.1rem;">❄️</div>
+              <div class="ctrl-val">24°C</div>
+              <div class="ctrl-label">空調</div>
+            </div>
+            <div class="ctrl-btn">
+              <div style="font-size:1.1rem;">🔒</div>
+              <div class="ctrl-val">已鎖</div>
+              <div class="ctrl-label">門鎖</div>
+            </div>
+            <div class="ctrl-btn on">
+              <div style="font-size:1.1rem;">🎵</div>
+              <div class="ctrl-val">播放</div>
+              <div class="ctrl-label">音樂</div>
+            </div>
+          </div>
+          <div class="energy-bar-wrap">
+            <div class="energy-label">
+              <span>今日用電</span>
+              <span style="color:var(--gold2);">節省 23%</span>
+            </div>
+            <div class="energy-bars">
+              <div class="e-bar" style="height:40%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:60%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:35%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:80%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:55%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:45%;background:linear-gradient(to top,#c9a84c,#e8c97e);"></div>
+              <div class="e-bar" style="height:70%;background:linear-gradient(to top,#00cfff80,#00cfff);opacity:0.8;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;">
+              <span style="font-size:0.65rem;color:var(--muted);">週一</span>
+              <span style="font-size:0.65rem;color:var(--muted);">週二</span>
+              <span style="font-size:0.65rem;color:var(--muted);">週三</span>
+              <span style="font-size:0.65rem;color:var(--muted);">週四</span>
+              <span style="font-size:0.65rem;color:var(--muted);">週五</span>
+              <span style="font-size:0.65rem;color:var(--muted);">週六</span>
+              <span style="font-size:0.65rem;color:#00cfff;">今日</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-inner">
+    <div class="reveal">
+      <div class="stat-num">50萬+</div>
+      <div class="stat-label">智能家庭</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num">99.9%</div>
+      <div class="stat-label">系統可用率</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num">0.3秒</div>
+      <div class="stat-label">平均響應時間</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num">200+</div>
+      <div class="stat-label">相容品牌</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">核心功能</div>
+  <div class="section-title">智能生活的每個細節</div>
+  <div class="section-sub">Lumora 提供全方位的智能家居解決方案，讓您的家真正懂得您的需求。</div>
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(201,168,76,0.15);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="#c9a84c" stroke-width="1.5"/><path d="M10 14C10 11.79 11.79 10 14 10C16.21 10 18 11.79 18 14" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="8" r="1.5" fill="#c9a84c"/><path d="M9 10L7 8M19 10L21 8" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="feat-title">AI 語音控制</div>
+      <div class="feat-desc">支援自然語言指令，無需記憶複雜命令。AI 學習您的使用習慣，預測您的下一步需求。</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(0,207,255,0.12);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="5" y="5" width="18" height="18" rx="3" stroke="#00cfff" stroke-width="1.5"/><path d="M10 14L13 17L18 11" stroke="#00cfff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="feat-title">情境自動化</div>
+      <div class="feat-desc">建立個人化場景模式——「晨起」「外出」「入眠」——一鍵啟動所有相關設備。</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(255,123,53,0.12);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 5V14L19 19" stroke="#ff7b35" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="14" r="9" stroke="#ff7b35" stroke-width="1.5"/></svg>
+      </div>
+      <div class="feat-title">能源監控</div>
+      <div class="feat-desc">實時監控每個設備的用電狀況，AI 自動優化能源分配，平均節省 30% 電費支出。</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(74,222,128,0.1);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="8" y="6" width="12" height="16" rx="2" stroke="#4ade80" stroke-width="1.5"/><path d="M11 12H17M11 15H15" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="9" r="1.5" fill="#4ade80"/></svg>
+      </div>
+      <div class="feat-title">全屋安防</div>
+      <div class="feat-desc">智能門鎖、攝影機與感測器無縫整合，異常事件即時推播通知，守護家人安全。</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(201,168,76,0.15);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 5C9.03 5 5 9.03 5 14C5 18.97 9.03 23 14 23C18.97 23 23 18.97 23 14" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/><path d="M18 5L23 5L23 10" stroke="#e8c97e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 5L16 12" stroke="#e8c97e" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="feat-title">氣候智控</div>
+      <div class="feat-desc">結合天氣預報與室內感測，自動調節空調、暖氣與通風，維持最舒適的居家環境。</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:rgba(0,207,255,0.12);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="#00cfff" stroke-width="1.5"/><path d="M7 22C7 18.69 10.13 16 14 16C17.87 16 21 18.69 21 22" stroke="#00cfff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="feat-title">多帳戶管理</div>
+      <div class="feat-desc">為家庭每位成員設立獨立的偏好設定，智能識別使用者身份，自動切換專屬模式。</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">快速上手</div>
+  <div class="section-title">三步驟，開啟智慧生活</div>
+  <div class="section-sub" style="margin-bottom:3.5rem;">從安裝到完全自動化，最快 30 分鐘即可完成設定。</div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-title">安裝 Lumora Hub</div>
+      <div class="step-desc">將 Lumora Hub 插入電源，App 引導完成網路配對，無需任何技術背景。</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-title">連接您的裝置</div>
+      <div class="step-desc">掃描或搜索現有的智能設備，Lumora 支援 200+ 品牌，即插即用。</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-title">享受智慧生活</div>
+      <div class="step-desc">設定您的日常情境，讓 AI 學習您的習慣，家居從此真正懂您。</div>
+    </div>
+  </div>
+</section>
+
+<!-- DEVICES -->
+<section class="devices" id="devices">
+  <div class="devices-inner" style="max-width:1200px;margin:0 auto;">
+    <div class="device-viz reveal">
+      <div style="font-size:1rem;font-weight:700;margin-bottom:1.2rem;color:var(--gold2);">已連接裝置 <span style="color:var(--muted);font-weight:400;">(8/8)</span></div>
+      <div class="device-list">
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(201,168,76,0.15);">💡</div>
+          <div class="device-info">
+            <div class="device-name">客廳主燈</div>
+            <div class="device-loc">客廳 · Philips Hue</div>
+          </div>
+          <div class="device-toggle toggle-on"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(0,207,255,0.1);">❄️</div>
+          <div class="device-info">
+            <div class="device-name">冷氣主機</div>
+            <div class="device-loc">客廳 · Daikin RXM</div>
+          </div>
+          <div class="device-toggle toggle-on"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(74,222,128,0.1);">🔒</div>
+          <div class="device-info">
+            <div class="device-name">玄關智能鎖</div>
+            <div class="device-loc">入口 · Yale Conexis</div>
+          </div>
+          <div class="device-toggle toggle-on"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(255,123,53,0.1);">📷</div>
+          <div class="device-info">
+            <div class="device-name">安全攝影機</div>
+            <div class="device-loc">正門 · Arlo Pro 4</div>
+          </div>
+          <div class="device-toggle toggle-on"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(201,168,76,0.1);">🎵</div>
+          <div class="device-info">
+            <div class="device-name">音響系統</div>
+            <div class="device-loc">客廳 · Sonos Arc</div>
+          </div>
+          <div class="device-toggle toggle-on"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="device-item">
+          <div class="device-icon" style="background:rgba(0,207,255,0.08);">🌡️</div>
+          <div class="device-info">
+            <div class="device-name">智能溫控</div>
+            <div class="device-loc">全屋 · Nest Thermostat</div>
+          </div>
+          <div class="device-toggle toggle-off"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="devices-text reveal">
+      <div class="section-label" style="text-align:left;">無縫整合</div>
+      <h2>與您喜愛的<br>品牌完美相容</h2>
+      <p>無論您已擁有哪些智能設備，Lumora 都能即時接管並統一管理，真正做到「一個 App，掌控全家」。</p>
+      <ul class="feature-list">
+        <li><span class="check-icon">✦</span>支援 Zigbee、Z-Wave、Wi-Fi、Matter 通訊協定</li>
+        <li><span class="check-icon">✦</span>相容 200+ 主流品牌，無需更換現有設備</li>
+        <li><span class="check-icon">✦</span>離線優先設計，斷網後仍可本地控制</li>
+        <li><span class="check-icon">✦</span>開放 API，可與第三方服務深度整合</li>
+        <li><span class="check-icon">✦</span>定期 OTA 更新，持續增加新設備支援</li>
+      </ul>
+      <a href="#pricing" class="btn-primary" style="display:inline-flex;">查看相容裝置列表</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-label">用戶評價</div>
+  <div class="section-title">真實使用者的感受</div>
+  <div class="section-sub">來自全台灣 50 萬個智能家庭的真實回饋。</div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testi-text">「安裝後的第一個月就省了 28% 的電費。Lumora 的 AI 真的很聰明，會自動在我睡覺時關掉忘記關的燈。」</div>
+      <div class="testi-author">
+        <div class="avatar" style="background:linear-gradient(135deg,#c9a84c,#e8c97e);color:#07090f;">陳</div>
+        <div>
+          <div class="author-name">陳雅婷</div>
+          <div class="author-role">台北市 · 使用 18 個月</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testi-text">「三個小孩各有不同的作息，以前管家裡的電器很頭痛。Lumora 讓每個人都有自己的情境設定，生活品質大幅提升。」</div>
+      <div class="testi-author">
+        <div class="avatar" style="background:linear-gradient(135deg,#00cfff,#0099cc);color:#07090f;">林</div>
+        <div>
+          <div class="author-name">林建宏</div>
+          <div class="author-role">新竹市 · 使用 24 個月</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <div class="testi-text">「我家有各種不同品牌的設備，Lumora 讓它們全部整合在一起。客服也非常專業，安裝師傅一小時內搞定所有配置。」</div>
+      <div class="testi-author">
+        <div class="avatar" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#07090f;">王</div>
+        <div>
+          <div class="author-name">王淑芬</div>
+          <div class="author-role">台中市 · 使用 12 個月</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-label">服務方案</div>
+  <div class="section-title">選擇適合您的方案</div>
+  <div class="section-sub">從基礎版到旗艦方案，滿足不同規模家庭的需求。</div>
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="price-tier">基礎版</div>
+      <div class="price-amt">免費<span> /永久</span></div>
+      <div class="price-desc">適合初次體驗智能家居的用戶</div>
+      <ul class="price-features">
+        <li class="has"><span class="pi">✦</span>最多 5 個設備</li>
+        <li class="has"><span class="pi">✦</span>基礎情境自動化</li>
+        <li class="has"><span class="pi">✦</span>App 手動控制</li>
+        <li style="opacity:0.4;"><span class="pi">✕</span>AI 語音助理</li>
+        <li style="opacity:0.4;"><span class="pi">✕</span>能源分析報告</li>
+        <li style="opacity:0.4;"><span class="pi">✕</span>24/7 專屬客服</li>
+      </ul>
+      <a href="#" class="btn-price btn-price-outline">免費開始</a>
+    </div>
+    <div class="price-card popular reveal">
+      <div class="popular-badge">最受歡迎</div>
+      <div class="price-tier">專業版</div>
+      <div class="price-amt">NT$599<span> /月</span></div>
+      <div class="price-desc">適合重視生活品質的現代家庭</div>
+      <ul class="price-features">
+        <li class="has"><span class="pi">✦</span>無限制設備數量</li>
+        <li class="has"><span class="pi">✦</span>進階 AI 情境自動化</li>
+        <li class="has"><span class="pi">✦</span>語音控制（全平台）</li>
+        <li class="has"><span class="pi">✦</span>完整能源監控分析</li>
+        <li class="has"><span class="pi">✦</span>雲端備份與異地控制</li>
+        <li style="opacity:0.4;"><span class="pi">✕</span>專屬安裝服務</li>
+      </ul>
+      <a href="#" class="btn-price btn-price-gold">立即升級</a>
+    </div>
+    <div class="price-card reveal">
+      <div class="price-tier">旗艦版</div>
+      <div class="price-amt">NT$1,299<span> /月</span></div>
+      <div class="price-desc">豪宅與高端別墅的完整解決方案</div>
+      <ul class="price-features">
+        <li class="has"><span class="pi">✦</span>專業版所有功能</li>
+        <li class="has"><span class="pi">✦</span>到府安裝與設定服務</li>
+        <li class="has"><span class="pi">✦</span>專屬客戶經理</li>
+        <li class="has"><span class="pi">✦</span>優先技術支援（24/7）</li>
+        <li class="has"><span class="pi">✦</span>客製化自動化開發</li>
+        <li class="has"><span class="pi">✦</span>年度全屋系統健診</li>
+      </ul>
+      <a href="#" class="btn-price btn-price-outline">聯繫顧問</a>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section class="integrations">
+  <div class="int-title">相容 200+ 品牌與服務</div>
+  <div class="int-logos">
+    <div class="int-logo">Philips Hue</div>
+    <div class="int-logo">IKEA TRÅDFRI</div>
+    <div class="int-logo">Sonos</div>
+    <div class="int-logo">Nest</div>
+    <div class="int-logo">Yale</div>
+    <div class="int-logo">Arlo</div>
+    <div class="int-logo">Daikin</div>
+    <div class="int-logo">Mitsubishi</div>
+    <div class="int-logo">Panasonic</div>
+    <div class="int-logo">Samsung SmartThings</div>
+    <div class="int-logo">Amazon Alexa</div>
+    <div class="int-logo">Google Home</div>
+    <div class="int-logo">Apple HomeKit</div>
+    <div class="int-logo">Matter 1.2</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="cta-bg"></div>
+  <div class="cta-inner">
+    <div class="section-label">立即體驗</div>
+    <h2>開啟您家的<br><span>智慧新紀元</span></h2>
+    <p>免費試用 30 天，無需信用卡，隨時可取消。超過 50 萬個家庭已選擇 Lumora。</p>
+    <div class="cta-btns">
+      <a href="#" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 8L8 14M2 8H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        免費開始 30 天試用
+      </a>
+      <a href="#" class="btn-outline">預約免費諮詢</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo" style="margin-bottom:1rem;display:inline-flex;">
+          <svg class="logo-icon" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="38" height="38" rx="10" fill="url(#lg2)"/>
+            <path d="M19 8L10 14V24L19 30L28 24V14L19 8Z" stroke="#07090f" stroke-width="1.5" fill="none"/>
+            <circle cx="19" cy="19" r="4" fill="#07090f"/>
+            <path d="M19 8V15M19 23V30M10 14L16 18M22 20L28 24M28 14L22 18M16 20L10 24" stroke="#07090f" stroke-width="1.2"/>
+            <defs>
+              <linearGradient id="lg2" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#c9a84c"/>
+                <stop offset="100%" stop-color="#e8c97e"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-text">Lumora</span>
+        </a>
+        <div class="footer-desc">Lumora 是領先的豪華智能家居平台，透過 AI 技術讓您的家更聰明、更安全、更節能。</div>
+      </div>
+      <div class="footer-col">
+        <h4>產品</h4>
+        <ul>
+          <li><a href="#">Lumora Hub</a></li>
+          <li><a href="#">語音控制</a></li>
+          <li><a href="#">能源監控</a></li>
+          <li><a href="#">安全系統</a></li>
+          <li><a href="#">App 下載</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>支援</h4>
+        <ul>
+          <li><a href="#">安裝指南</a></li>
+          <li><a href="#">相容裝置</a></li>
+          <li><a href="#">常見問題</a></li>
+          <li><a href="#">技術支援</a></li>
+          <li><a href="#">社群論壇</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>公司</h4>
+        <ul>
+          <li><a href="#">關於我們</a></li>
+          <li><a href="#">新聞稿</a></li>
+          <li><a href="#">合作夥伴</a></li>
+          <li><a href="#">職缺</a></li>
+          <li><a href="#">隱私政策</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Lumora Intelligence. 保留所有權利。</div>
+      <div class="footer-credit">製作單位：<a href="https://bridgeseqlab.vercel.app" target="_blank">橋序創研</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); } });
+  },{threshold:0.1});
+  revealEls.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
